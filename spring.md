@@ -51,3 +51,8 @@ logging.level.org.springframework=debug
 ## Actuator --> Monitoring Tool (Collect Dependency XML Codes from Maven Repo)
 1. Starter Actuator --> Collects all API Method (http://localhost:8080/actuator)
 2. Hal Browser --> To visualize data (http://localhost:8080/browser/index.html#)
+
+## 2 Ways to connect with the database
+- EntityManager --> Needs a manual set-up
+- JpaRepository --> Internally communicates to the EntityManager
+- 
