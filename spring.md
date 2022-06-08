@@ -55,4 +55,3 @@ logging.level.org.springframework=debug
 ## 2 Ways to connect with the database
 - EntityManager --> Needs a manual set-up
 - JpaRepository --> Internally communicates to the EntityManager
-- 
