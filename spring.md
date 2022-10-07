@@ -117,7 +117,7 @@ public String processForm(@RequestParam("studentName") String name, Model model)
 }
 ```
 **JSP Code**
-```html
+```JSP
 <html>
     <body>
         Hello the world of Spring
@@ -147,6 +147,98 @@ public class HelloController {
 }
 ```
 - The URL paths would be `/parent/showForm` and `/parent/processForm`
+
+### Form tags and Data binding
+#### Text Fields
+1. Create getters and setters
+    - For e.g., Student Class
+
+```java
+//student class
+public class Stduent {
+    private String firstName;
+    private String lastName;
+
+    public Student() {}
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+}
+```
+2. Create controller class
+```java
+// STudent Controller
+@Controller
+@RequestMapping("/student")
+public class StudentController {
+    @RequestMapping("/")
+    public String showForm(Model model) {
+
+        //create a student object
+        Student student = new Student();
+
+        //add student object to the model
+        model.addAttribute("student", student);
+
+        return "student-form";
+    }
+
+    @RequestMapping("/processForm")
+    public String processForm(@ModelAttribute("student") Student student) {
+        // log input data
+        //System.out.println(student.getFirstName() + " " + student.getLastName());
+        return "student-confirmation";
+    }
+}
+```
+
+3. Create HTML form using JSP
+```JSP
+<!-- student-form.jsp -->
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Student Registration form</title>
+    </head>
+    <body>
+        <form:form action="processForm" modelAttribute="student">
+            First Name: <form:input path="firstName" />
+            Last Name: <form:input path="lastName" />
+
+            <input type="submit" value="Submit" />
+        </form:form>
+    </body>
+</html>
+```
+
+4. Create a confirmation page using JSP
+```JSP
+<!--student-confirmation.jsp-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Student Confirmation</title>
+    </head>
+    <body>
+        Student: ${student.firstName} ${student.lastName}
+    </body>
+</html>
+```
 
 ## Auto wiring
 - This is done to deal with tight coupling
