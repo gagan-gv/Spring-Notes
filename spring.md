@@ -361,6 +361,143 @@ public class Stduent {
 </html>
 ```
 
+## Form Validation
+- Standard Bean Validation API
+    - Defines metadata model and API for entity validation
+    - Not tied to either the web tier or the persistence tier
+- Features
+    - Required
+    - Validation Length
+    - Validate Numbers
+    - RegEx
+    - Custom Validation
+- Annotations
+    - @NotNull
+    - @Min
+    - @Max
+    - @Size
+    - @Pattern
+    - @Future
+    - @Past
+    - etc
+
+### Handle String input for Integer classes
+1. Create custom error messages
+    - src/resources/messages.properties
+    ```properties
+    #messages.properties
+
+    typeMismatch.customer.freePasses = Should be a number
+    typeMismatch.customer.postalCode = Should be a number
+    ```
+2. Load custom message resource in config file
+    - WebContent/WEB-INF/spring-mvc-demo-servlet.xml
+    ```xml
+    <!--spring-mvc-demo-servlet.xml-->
+    <!--Add follwing codes to it-->
+    <!--Load custom message resources-->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basenames" value="resources/messages" />
+    </bean>
+    ```
+
+### Development Process
+1. Add validation rule to the class
+    ```java
+    // customer class
+    public class Customer {
+        @NotNull(message="Is required")
+        @Size(min=2, message="Min name size should be of length 2")
+        private String firstName;
+
+        private String lastName;
+
+        @Min(value = 1, message="Should be greater than 0")
+        @Max(value = 10, message="Should be lesser than or equal to 10")
+        private int freePasses;
+
+        @NotNull(message="Is required")
+        @Pattern(regexp="^[1-9][0-9]{5}", message="Postal Code should be of length 6")
+        private Integer postalCode;
+
+        // getter and setter methods
+        ...
+    }
+    ```
+
+2. Display error message on the form
+    ```JSP
+    <!--customer-form.jsp-->
+    <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+    <!--Add HTML and BODY and STYLE tags -->
+    <form:form action="processForm" modelAttribute="customer">
+        First Name(*): <form:input path="firstName" />
+        <form:errors path="firstName" cssClass="error" />
+
+        <br/>
+
+        Last Name: <form:input path="lastName" />
+
+        <br/>
+
+        Free Passess: <form:input path="freePasses" />
+        <form:errors path="freePasses" cssClass="error" />
+
+        <br/>
+
+        Postal Code(*): <form:input path="postalCode" />
+        <form:errors path="postalCode" cssClass="error" />
+
+        <input type="submit" value="Submit" />
+    </form:form>
+    ```
+3. Perform validation in controller class
+    ```java
+    //customer controller class
+    @Controller
+    @RequestMapping("/customer")
+    public class CustomerController {
+
+        // Adding initbinder to trim the whitespaces
+        @InitBinder
+        public void initBinder(WebDataBinder db) {
+            StringTrimmerEditor editor = new StringTrimmerEditor(true);
+
+            db.registerCustomEditor(String.class, editor);
+        }
+
+        @RequestMapping("/showForm")
+        public String showForm(Model model) {
+            model.addAttribute("customer", new Customer());
+
+            return "customer-form";
+        }
+
+        @RequestMapping("/processForm")
+        public String processForm(@Valid @ModelAttribute("customer") Customer customer, BindingResult bindingResult) {
+            if(bindingResult.hasErrors()) {
+                return "customer-form";
+            }
+            return "customer-confirmation";
+        }
+    }
+    ```
+4. Update confirmation page
+    ```JSP
+    <!--customer-confirmation.jsp-->
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>Customer Confirmation</title>
+        </head>
+        <body>
+            Customer: ${customer.firstName} ${customer.lastName}
+            Passes: ${customer.freePasses}
+            Postal Code: ${customer.postalCode}
+        </body>
+    </html>
+    ```
+
 ## Auto wiring
 - This is done to deal with tight coupling
 - Steps:
@@ -368,8 +505,6 @@ public class Stduent {
     1. Identify the beans, i.e., similar classes
     2. Identify the dependency, i.e., how beans are related
     3. Use @Component for beans and @Autowire for dependencies
-
-- Uses `@Autowired` annotation
     
 ## Debug Command
 - In resources folder go to application properties and type:
