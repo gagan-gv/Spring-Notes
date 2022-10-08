@@ -240,6 +240,127 @@ public class StudentController {
 </html>
 ```
 
+#### Dropdown
+1. Update Student class with a variable nationality
+```java
+import java.util.Locale;
+//student class
+public class Stduent {
+    private String firstName;
+    private String lastName;
+    private String country;
+
+    private LinkedHashMap<String, String> countryNames;
+
+    public Student() {
+        // populate countryNames: used ISO country code
+        String[] countryCodes = Locale.getISOCountries();
+        countryNames = new LinkedHashMap<>();
+
+        for (String cc : countryCodes) {
+            // country name , country code map
+            countryNames.put(cc.toUpperCase(), new Locale("", cc).getDisplayCountry());
+        }
+
+        //countryNames.forEach((k, v) -> System.out.println(k + " " + v));
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public LinkedHashMap<String, String> getCountryNames() {
+        return countryNames;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+}
+```
+
+2. Update the JSP form
+```JSP
+<!-- student-form.jsp -->
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Student Registration form</title>
+    </head>
+    <body>
+        <form:form action="processForm" modelAttribute="student">
+            First Name: <form:input path="firstName" />
+            Last Name: <form:input path="lastName" />
+            Country: 
+            <form:select path="country">
+                <form:option items="${student.countryNames}" />
+            </form:selecr>
+            <input type="submit" value="Submit" />
+        </form:form>
+    </body>
+</html>
+```
+
+3. Update Confirmation Page
+```JSP
+<!--student-confirmation.jsp-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Student Confirmation</title>
+    </head>
+    <body>
+        Student: ${student.firstName} ${student.lastName}
+        Country: ${student.country}
+    </body>
+</html>
+```
+
+#### Radio Buttons and checkboxes
+1. Similarly create variables in Student class and generate Getters and Setters
+2. Add `<form:radiobutton path="favLang" items="${student.favLang}" />` or `<form:checkbox path="OS" items="${student.OS}">` in the JSP form
+3. Update the confirmation page
+
+```JSP
+<!--student-confirmation.jsp-->
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Student Confirmation</title>
+    </head>
+    <body>
+        Student: ${student.firstName} ${student.lastName}
+        Country: ${student.country}
+        Fav Lang: ${student.favLang}
+        <!--To display arrays-->
+        <ul>
+            <c:forEach var="temp" items="${student.OS}">
+                <li>${temp}</li>
+            </c:forEach>
+        </ul>
+    </body>
+</html>
+```
+
 ## Auto wiring
 - This is done to deal with tight coupling
 - Steps:
