@@ -312,7 +312,7 @@ public class Stduent {
             Country: 
             <form:select path="country">
                 <form:option items="${student.countryNames}" />
-            </form:selecr>
+            </form:select>
             <input type="submit" value="Submit" />
         </form:form>
     </body>
@@ -401,6 +401,53 @@ public class Stduent {
     </bean>
     ```
 
+### Custom Validation
+1. Create custom validation rule
+    ```java
+    //CourseCode annotation interface
+    @Constraint(validatedBy=CourseCodeConstraintValidator.class)
+    @Target( {ElementType.METHOD, ElementType.FIELD} )
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface CourseCode {
+        //define default course code
+        public String value() default "GAG";
+
+        //define default error message
+        public String message() default "Must start with GAG";
+
+        //define default groups
+        public Class<?>[] groups() default {};
+
+        //define default payload
+        public Class<? extends Payload>[] payload() default {};
+    }
+    ```
+2. Create constraint validator
+    ```java
+    //CourseCodeConstraintValidator class
+    public class CourseCodeConstraintValidator implements ConstraintValidator<CourseCode, String> {
+        private String coursePrefix;
+
+        @Override
+        public void initialize(CourseCode courseCode) {
+            coursePrefix = courseCode.value();
+        }
+
+        @Override
+        public boolean isValid(String code, ConstraintValidatorContext message) {
+            boolean res;
+
+            if(code != null) {
+                res = code.startsWith(coursePrefix)
+            }else {
+                res = true;
+            }
+
+            return res;
+        }
+    }
+    ```
+
 ### Development Process
 1. Add validation rule to the class
     ```java
@@ -419,6 +466,9 @@ public class Stduent {
         @NotNull(message="Is required")
         @Pattern(regexp="^[1-9][0-9]{5}", message="Postal Code should be of length 6")
         private Integer postalCode;
+
+        @CourseCode
+        private String courseCode;
 
         // getter and setter methods
         ...
@@ -448,9 +498,15 @@ public class Stduent {
         Postal Code(*): <form:input path="postalCode" />
         <form:errors path="postalCode" cssClass="error" />
 
+        <br/>
+
+        Course Code(*): <form:input path="courseCode" />
+        <form:errors path="courseCode" cssClass="error" />
+
         <input type="submit" value="Submit" />
     </form:form>
     ```
+
 3. Perform validation in controller class
     ```java
     //customer controller class
@@ -482,6 +538,7 @@ public class Stduent {
         }
     }
     ```
+
 4. Update confirmation page
     ```JSP
     <!--customer-confirmation.jsp-->
@@ -494,6 +551,7 @@ public class Stduent {
             Customer: ${customer.firstName} ${customer.lastName}
             Passes: ${customer.freePasses}
             Postal Code: ${customer.postalCode}
+            Course Code: ${customer.courseCode}
         </body>
     </html>
     ```
