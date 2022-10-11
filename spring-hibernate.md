@@ -323,3 +323,109 @@ public class HibernateDeleteDemo {
     }
 }
 ```
+
+## Mappings
+- One to One
+    - Ex: An instructor can have an "instructor detail entity"
+    ![image](https://user-images.githubusercontent.com/60386381/195039067-2aa65a7a-bce2-4bca-93b3-1ea9969d0966.png)
+- Many to One
+    - Ex: N-Courses can belong to 1 instructor
+- One to Many
+    - Ex: An instructor can have many courses
+    ![image](https://user-images.githubusercontent.com/60386381/195038922-c08c7275-a0b4-4c34-85ec-971b4c7f80f9.png)
+- Many to Many
+    - Ex: A course can have many students and one student can have many courses
+    ![image](https://user-images.githubusercontent.com/60386381/195038794-b0d5f5ad-434d-46d9-a88d-5f8558a61f8c.png)
+
+### Database concepts related to Mappings
+- Primary and Foreign Keys
+- Cascade
+
+### One to One
+- Uses `@OneToOne` for mapping
+
+#### Entity Lifecycle
+- Detach: If entity is detached, it is not associated with hibernate session
+- Merge: If instance is detached from the session, then merge will reattach it to the session
+- Persist: Transitions new instances to managed state. Next flush/commit will save it in database
+- Remove: Transitions managed instances will be removed. Next flush/commit will remove it from database
+- Refresh: Reload/sync object with data from db. Prevents stale data
+
+![image](https://user-images.githubusercontent.com/60386381/195041145-18cdbfeb-6c1e-4e3c-9617-de187ea40f3e.png)
+
+#### Cascade Types:
+- Persist: If entity is persisted/saved, related entity will also be persisted
+- Remove: If entity is removed/deleted, releated entity will also be removed
+- Refresh: If entity is refreshed, related entity will also be refreshed
+- Detach: If entity is detached, related entity will also be detached
+- Merge: If entity is merged, related entity will also be merged
+- All: All of the above cascade types
+
+> **NOTE:** By default no operations are cascaded.
+
+> **NOTE:** Multiple cascade types can be configured
+
+#### Development Process
+**Setup hibernate config file and JDBC connect file**
+1. Define Database Tables
+    ```sql
+    CREATE TABLE `instructor_details` (
+        `id` int(11) PRIMARY KEY AUTO_INCREMENT,
+        `yt_channel` varchar(256) DEFAULT NULL,
+        `hobby` varchar(50) DEFAULT NULL
+    )
+
+    CREATE TABLE `instructor` (
+        `id` int(11) PRIMARY KEY AUTO_INCREMENT,
+        `name` varchar(50) DEFAULT NULL,
+        `email` varchar(70) DEFAULT NULL,
+        `instructor_detail_id` int(11) DEFAULT NULL,
+        FOREIGN KEY (`instructor_detail_id`) REFERENCES `instructor_details`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+    )
+    ```
+2. Create InstructorDetail Class
+    ```java
+    @Entity
+    @Table(name="instructor_detail")
+    public class InstructorDetail {
+
+        @Id
+        @Column(name="id")
+        private int id;
+
+        @Column(name="yt_channel")
+        private String ytChannel;
+
+        @Column(name="hobby")
+        private String hobby;
+
+        // create constructors
+        // generate getter and setter
+        // override toString()
+    }
+    ```
+3. Create Instructor Class
+    ```java
+    @Entity
+    @Table(name="instructor")
+    public class Instructor {
+        @Id
+        @Column(name="id")
+        private int id;
+
+        @Column(name="name")
+        private String name;
+
+        @Column(name="email")
+        private String email;
+
+        @OneToOne(cascade=CascadeType.ALL)
+        @JoinColumn(name="instructor_detail_id")
+        private String instructorDetailId;
+
+        // create constructors
+        // generate getter and setter
+        // override toString()
+    }
+    ```
+4. Create Main App
