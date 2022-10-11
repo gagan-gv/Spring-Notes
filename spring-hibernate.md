@@ -183,3 +183,143 @@ public class HibernateReadDemo {
     }
 }
 ```
+
+##### Hibernate Query Language (HQL)
+- Used for retrieving data
+- Similar in nature to SQL
+- Helps to retrieve multiple rows of data
+
+```java
+/*QueryStudentDemo.java*/
+public class QueryStudentDemo {
+    public static void main(String[] args) {
+        // create session factory
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Student.class).buidSessionFactory();
+        
+        //create session
+        Session session = factory.getCurrentSession();
+
+        try {
+            // use the session object
+            // start a transaction
+            session.beginTransaction();
+
+            // query students
+            List<Student> students = session.createQuery("from Student").getResultList();
+
+            // display each student data
+            for(Object o: students) {
+                System.out.println(o);
+            }
+
+            // With a specific name
+            students = session.createQuery("from Student s where s.name='John Doe'").getResultList();
+
+            // display each student data
+            for(Object o: students) {
+                System.out.println(o);
+            }
+
+            // with a specific email domain
+            students = session.createQuery("from Student s where s.email LIKE '%example.com'").getResultList();
+
+            // display each student data
+            for(Object o: students) {
+                System.out.println(o);
+            }
+
+            //commit transaction
+            session.getTransaction().commit();
+
+        } finally {
+            factory.close();
+        }
+    }
+}
+```
+
+#### Updating an Object (U)
+```java
+//HibernateUpdateDemo.java
+public class HibernateUpdateDemo {
+    public static void main(String[] args) {
+        // create session factory
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Student.class).buidSessionFactory();
+        
+        //create session
+        Session session = factory.getCurrentSession();
+
+        try {
+            int studentID = 1;
+            // begin a transaction
+            session.beginTransaction();
+
+            // retrieve data
+            Student myStudent = session.get(Student.class, s.getId());
+
+            // update data
+            myStudent.setName("Shaggy");
+
+            // end session
+            session.endTransaction().commit();
+
+            // query updation
+            session = factory.getCurrentSession();
+
+            // begin a transaction
+            session.beginTransaction();
+
+            session.createQuery("update Student set email='foo@gmail.com'").executeUpdate();
+
+            // end session
+            session.endTransaction().commit();
+
+        } finally {
+            factory.close();
+        }
+    }
+}
+```
+
+#### Deleting Object(s) (D)
+```java
+//HibernateDeleteDemo.java
+public class HibernateDeleteDemo {
+    public static void main(String[] args) {
+        // create session factory
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Student.class).buidSessionFactory();
+        
+        //create session
+        Session session = factory.getCurrentSession();
+
+        try {
+            int studentID = 1;
+            // begin a transaction
+            session.beginTransaction();
+
+            // retrieve data
+            Student myStudent = session.get(Student.class, s.getId());
+
+            // delete data
+            myStudent.delete(myStudent);
+
+            // end session
+            session.endTransaction().commit();
+
+            // query deletion
+            session = factory.getCurrentSession();
+
+            // begin a transaction
+            session.beginTransaction();
+
+            session.createQuery("delete from Student where id = 2").executeUpdate();
+
+            // end session
+            session.endTransaction().commit();
+
+        } finally {
+            factory.close();
+        }
+    }
+}
+```
