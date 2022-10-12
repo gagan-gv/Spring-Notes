@@ -365,7 +365,7 @@ public class HibernateDeleteDemo {
 
 > **NOTE:** Multiple cascade types can be configured
 
-#### Development Process
+#### Development Process (Uni-directional)
 **Setup hibernate config file and JDBC connect file**
 1. Define Database Tables
     ```sql
@@ -429,3 +429,31 @@ public class HibernateDeleteDemo {
     }
     ```
 4. Create Main App
+    ```java
+    // Demo.java
+    public class Demo {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+                Instructor instructor = new Instructor("Chad", "chad@gmail.com");
+
+                InstructorDetail instructorDetail = new InstructorDetails("youtube.com/myChannel", "Kuch Nahi");
+
+                instructor.setInstructorDetail(instructorDetail);
+
+                session.beginTransaction();
+
+                session.save(instructor)// this will save instructor detail as well, due CASCADE.ALL
+
+                session.getTransaction().commit();
+            }finally {
+                factory.close();
+            }
+        }
+    }
+    ```
