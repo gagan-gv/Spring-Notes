@@ -341,10 +341,7 @@ public class HibernateDeleteDemo {
 - Primary and Foreign Keys
 - Cascade
 
-### One to One
-- Uses `@OneToOne` for mapping
-
-#### Entity Lifecycle
+### Entity Lifecycle
 - Detach: If entity is detached, it is not associated with hibernate session
 - Merge: If instance is detached from the session, then merge will reattach it to the session
 - Persist: Transitions new instances to managed state. Next flush/commit will save it in database
@@ -353,7 +350,7 @@ public class HibernateDeleteDemo {
 
 ![image](https://user-images.githubusercontent.com/60386381/195041145-18cdbfeb-6c1e-4e3c-9617-de187ea40f3e.png)
 
-#### Cascade Types:
+### Cascade Types:
 - Persist: If entity is persisted/saved, related entity will also be persisted
 - Remove: If entity is removed/deleted, releated entity will also be removed
 - Refresh: If entity is refreshed, related entity will also be refreshed
@@ -364,6 +361,9 @@ public class HibernateDeleteDemo {
 > **NOTE:** By default no operations are cascaded.
 
 > **NOTE:** Multiple cascade types can be configured
+
+### One to One
+- Uses `@OneToOne` for mapping
 
 #### Development Process (Uni-directional)
 **Setup hibernate config file and JDBC connect file**
@@ -520,7 +520,7 @@ public class HibernateDeleteDemo {
     }
     ```
 
-##### Bi directional - Delete only data from one table
+##### Bi directional - Delete data only from one table
 1. Change the cascade type in the table, here instructor detail
     ```java
     @Entity
@@ -573,6 +573,211 @@ public class HibernateDeleteDemo {
                 session.getTransaction().commit();
             }catch(Exception e) {
                 e.printStackTrace();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    ```
+
+### One to Many
+
+#### Development Process (Bi-directional)
+1. Define databse tables
+    ```SQL
+    -- using same instructor table
+    CREATE TABLE `course` (
+        `id` int(11) PRIMARY KEY AUTO_INCREMENT,
+        `title` varchar(256) DEFAULT NULL UNIQUE,
+        `instructor_id` int(11) DEFAULT NULL,
+        FOREIGN KEY (`instructor_id`) REFERENCES `instructor`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+    )
+    ```
+2. Create course class
+    ```java
+    // course class
+    @Entity
+    @Table(name="course")
+    public class Course {
+
+        @Id
+        @GeneratedValue(strategy=GenerationType.IDENTITY)
+        @Column(name="id")
+        private int id;
+
+        @Column(name="title")
+        private String title;
+
+        @ManyToOne(cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+        @JoinColumn(name="instructor_id")
+        private Instructor instructor;
+
+        //define consructors
+        // define getters and setters
+        // override toString()
+    }
+    ```
+3. Update Instructor class
+    ```java
+    @Entity
+    @Table(name="instructor")
+    public class Instructor {
+        @Id
+        @Column(name="id")
+        private int id;
+
+        @Column(name="name")
+        private String name;
+
+        @Column(name="email")
+        private String email;
+
+        @OneToOne(cascade=CascadeType.ALL)
+        @JoinColumn(name="instructor_detail_id")
+        private String instructorDetailId;
+
+        @OneToMany(mappedBy="instructor", cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+        private List<Course> courses;
+
+        // create constructors
+        // generate getter and setter
+        // override toString()
+
+        // add convinence method for bi-directional relationship
+
+        public void addCourse(Course course) {
+            if(courses == null) {
+                courses = new ArrayList<>();
+            }
+
+            courses.add(course);
+            course.setInstructor(this);
+        }
+    }
+4. Create main app
+    1. Add instructor to db
+    ```java
+    // Demo.java
+    public class Demo {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+                Instructor instructor = new Instructor("Chad", "chad@gmail.com");
+
+                InstructorDetail instructorDetail = new InstructorDetails("youtube.com/myChannel", "Kuch Nahi");
+
+                instructor.setInstructorDetail(instructorDetail);
+
+                session.beginTransaction();
+
+                session.save(instructor)// this will save instructor detail as well, due CASCADE.ALL
+
+                session.getTransaction().commit();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    ```
+    2. Create courses for instructor
+    ```java
+    // CreateCourseDemo.java
+    public class CreateCourseDemo {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+                session.beginTransaction();
+
+                // get instructor from DB
+                int id = 1;
+                Instructor instructor = session.get(Instructor.class, id);
+
+                // create courses
+                Course c1 = new Course("Course 1");
+                Course c2 = new Course("Course 2");
+
+                // add courses to Instructor
+                instructor.addCourse(c1);
+                instructor.addCourse(c2);
+
+                // save courses to db
+                session.save(c1);
+                session.save(c2);
+
+                session.getTransaction().commit();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    ```
+
+#### Development Process for retrieving data (Bi-directional)
+1. Create GetInstructorCourses
+    ```java
+    // GetInstructorCourses.java
+    public class GetInstructorCourses {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+                session.beginTransaction();
+
+                // get instructor from DB
+                int id = 1;
+                Instructor instructor = session.get(Instructor.class, id);
+
+                // get courses
+                System.out.println(instructor.getCourses());
+
+                session.getTransaction().commit();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    ```
+
+#### Development Process for deleting data (Bi-directional)
+1. Create DeleteCourse
+    ```java
+    // DeleteCourse.java
+    public class DeleteCourse {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+                session.beginTransaction();
+
+                // get a course
+                int id = 5;
+                Course course = session.get(Course.class, id);
+
+                session.delete(course);
+
+                session.getTransaction().commit();
             }finally {
                 session.close();
                 factory.close();
