@@ -655,6 +655,7 @@ public class HibernateDeleteDemo {
             course.setInstructor(this);
         }
     }
+    ```
 4. Create main app
     1. Add instructor to db
     ```java
@@ -785,3 +786,254 @@ public class HibernateDeleteDemo {
         }
     }
     ```
+#### Development Process (Uni-directional)
+1. Define database tables
+    ```SQL
+    CREATE TABLE `reviews` (
+        `id` int(11) PRIMARY KEY AUTO_INCREMENT,
+        `comment` varchar(1024) DEFAULT NULL,
+        `course_id` int(11) DEFAULT NULL,
+        FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+    )
+    ```
+2. Create Review Class
+    ```java
+    // Review Class
+    @Entity
+    @Table(name="review")
+    public class Review {
+
+        @Id
+        @GeneratedValue(strategy=GenerationType.IDENTITY)
+        @Column(name="id")
+        private int id;
+
+        @Column(name="comment")
+        private String comment;
+
+        // constructors
+        // getters & setters
+        // override toString()
+    }
+    ```
+3. Update Course Class
+    ```java
+    // course class
+    @Entity
+    @Table(name="course")
+    public class Course {
+
+        @Id
+        @GeneratedValue(strategy=GenerationType.IDENTITY)
+        @Column(name="id")
+        private int id;
+
+        @Column(name="title")
+        private String title;
+
+        @ManyToOne(cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+        @JoinColumn(name="instructor_id")
+        private Instructor instructor;
+
+        @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+        @JoinColumn(name="course_id")
+        private List<Review> reviews;
+
+        //define consructors
+        // define getters and setters
+        // override toString()
+
+        // add a convinence method to add reviews
+        public void addReviews(Review review) {
+            if(reviews == null) {
+                reviews = new ArrayList<>();
+            }
+
+            reviews.add(review);
+        }
+    }
+    ```
+4. Create Main App
+    ```java
+    // CreateCourseReviewDemo.java
+    public class CreateCourseReviewDemo {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).addAnnotatedClass(Review.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+                session.beginTransaction();
+
+                // create a course
+                Course course = new Course("Pac Man");
+
+                // add reviews
+                course.addReview(new Review("Haan bhai thik hai"));
+
+                session.save(course);
+
+                session.getTransaction().commit();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    ```
+
+### Fetch Type - Eager vs Lazy Loading
+- Eager
+    - Retrieves everything
+    - Loads all dependent entities
+- Lazy
+    - Retrieves only when requested
+    - Loads only the main entity first
+    - Can be retrieved using session or HQL
+
+#### Default fetch types
+| Mapping   | Default FetchType    |
+|--------------- | --------------- |
+| @OneToOne | Eager |
+| @OneToMany | Lazy |
+| @ManyToOne | Eager |
+| @ManyToMany | Lazy |
+
+#### Eager Fecth Code Example
+```java
+// Hibernate will run a query when the code is run
+// EagerDemo.java
+public class EagerDemo {
+    public static void main(String[] args) {
+        // create session factory
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).buidSessionFactory();
+        
+        //create session
+        Session session = factory.getCurrentSession();
+
+        try {
+            session.beginTransaction();
+
+            int id = 1;
+            Instructor instructor = session.get(Instructor.class, id);
+
+            // get courses
+            System.out.println(instructor.getCourses());
+
+            System.out.println(instructor);
+
+            session.getTransaction().commit();
+        }finally {
+            session.close();
+            factory.close();
+        }
+    }
+}
+```
+```java
+@Entity
+@Table(name="instructor")
+public class Instructor {
+    @Id
+    @Column(name="id")
+    private int id;
+
+    @Column(name="name")
+    private String name;
+
+    @Column(name="email")
+    private String email;
+
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name="instructor_detail_id")
+    private String instructorDetailId;
+
+    @OneToMany(fetch=FetchType.EAGER, mappedBy="instructor", cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private List<Course> courses;
+
+    // create constructors
+    // generate getter and setter
+    // override toString()
+
+    // add convinence method for bi-directional relationship
+
+    public void addCourse(Course course) {
+        if(courses == null) {
+            courses = new ArrayList<>();
+        }
+
+        courses.add(course);
+        course.setInstructor(this);
+    }
+}
+```
+#### Lazy Fetch Code Demo
+```java
+@Entity
+@Table(name="instructor")
+public class Instructor {
+    @Id
+    @Column(name="id")
+    private int id;
+
+    @Column(name="name")
+    private String name;
+
+    @Column(name="email")
+    private String email;
+
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name="instructor_detail_id")
+    private String instructorDetailId;
+
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="instructor", cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private List<Course> courses;
+
+    // create constructors
+    // generate getter and setter
+    // override toString()
+
+    // add convinence method for bi-directional relationship
+
+    public void addCourse(Course course) {
+        if(courses == null) {
+            courses = new ArrayList<>();
+        }
+
+        courses.add(course);
+        course.setInstructor(this);
+    }
+}
+```
+```java
+// Hibernate will run a query only when the lazy section of code is called
+// LazyDemo.java
+public class LazyDemo {
+    public static void main(String[] args) {
+        // create session factory
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).buidSessionFactory();
+        
+        //create session
+        Session session = factory.getCurrentSession();
+
+        try {
+            session.beginTransaction();
+
+            int id = 1;
+            Instructor instructor = session.get(Instructor.class, id);
+
+            // get courses
+            System.out.println(instructor.getCourses());
+
+            System.out.println(instructor);
+
+            session.getTransaction().commit();
+        }finally {
+            session.close();
+            factory.close();
+        }
+    }
+}
+```
