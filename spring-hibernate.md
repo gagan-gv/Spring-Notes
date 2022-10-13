@@ -457,3 +457,126 @@ public class HibernateDeleteDemo {
         }
     }
     ```
+
+#### Development Process (Bi-directional)
+> **NOTE:** With Respect to above set of code
+
+1. Update the InstructorDetail Class:
+    1. Add new field to reference instructor
+    2. Add getter and setter methods for instructor
+    3. Add one to one annotation
+    ```java
+    @Entity
+    @Table(name="instructor_detail")
+    public class InstructorDetail {
+
+        @Id
+        @Column(name="id")
+        private int id;
+
+        @Column(name="yt_channel")
+        private String ytChannel;
+
+        @Column(name="hobby")
+        private String hobby;
+
+        @OneToOne(mappedBy="instructorDetail", cascase=CascadeType.ALL)
+        private Instructor instructor;
+
+        // create constructors
+        // generate getter and setter
+        // override toString()
+    }
+    ```
+2. Create main app
+    ```java
+    // Demo.java
+    public class Demo {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+
+                session.beginTransaction();
+
+                int id = 1;
+                InstructorDetail instructorDetail = session.get(InstructorDetail.class, id);
+
+                System.out.println(instructorDetail);
+                System.out.println(instructorDetail.getInstructor());
+
+                session.getTransaction().commit();
+            }catch(Exception e) {
+                e.printStackTrace();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    ```
+
+##### Bi directional - Delete only data from one table
+1. Change the cascade type in the table, here instructor detail
+    ```java
+    @Entity
+    @Table(name="instructor_detail")
+    public class InstructorDetail {
+
+        @Id
+        @Column(name="id")
+        private int id;
+
+        @Column(name="yt_channel")
+        private String ytChannel;
+
+        @Column(name="hobby")
+        private String hobby;
+
+        @OneToOne(mappedBy="instructorDetail", cascase={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+        private Instructor instructor;
+
+        // create constructors
+        // generate getter and setter
+        // override toString()
+    }
+    ```
+2. Update the Delete code by breaking the bidirectional link
+    ```java
+    // DeleteDemo.java
+    public class DeleteDemo {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+
+                session.beginTransaction();
+
+                int id = 1;
+                InstructorDetail instructorDetail = session.get(InstructorDetail.class, id);
+
+                System.out.println(instructorDetail);
+                System.out.println(instructorDetail.getInstructor());
+
+                // break bi-directional link
+                instructorDetail.getInstructor().setInstructorDetails(null);
+                session.delete(instructorDetail);
+
+                session.getTransaction().commit();
+            }catch(Exception e) {
+                e.printStackTrace();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    ```
