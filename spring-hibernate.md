@@ -1037,3 +1037,159 @@ public class LazyDemo {
     }
 }
 ```
+
+### Many To Many
+- Terminologies
+    - Join Table: A table that provides mapping between 2 tables. It has foreign keys for each table to define the mapping relationship. Uses annotation: `@JoinTable()`
+    ![image](https://user-images.githubusercontent.com/60386381/195759724-17faac04-b89f-4ec1-9c27-ee3c03f7b98b.png)
+
+#### Development Process
+1. Define database tables
+    ```SQL
+    CREATE TABLE `course_student` (
+        `course_id` int(11),
+        `student_id` int(11),
+        PRIMARY KEY(`course_id`, `student_id`),
+        FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+        FOREIGN KEY (`student_id`) REFERENCES `student`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+    )
+    ```
+2. Update Course class
+    ```java
+    // course class
+    @Entity
+    @Table(name="course")
+    public class Course {
+
+        @Id
+        @GeneratedValue(strategy=GenerationType.IDENTITY)
+        @Column(name="id")
+        private int id;
+
+        @Column(name="title")
+        private String title;
+
+        @ManyToOne(cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+        @JoinColumn(name="instructor_id")
+        private Instructor instructor;
+
+        @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+        @JoinColumn(name="course_id")
+        private List<Review> reviews;
+
+        @ManyToMany(fetch=FetchType.LAZY, cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+        @JoinTable(
+            name="course_student",
+            joinColumns=@JoinColumn(name="course_id"),
+            inverseJoinColumns=@JoinColumn(name="student_id")
+        )
+        private List<Student> students;
+
+        //define consructors
+        // define getters and setters
+        // override toString()
+
+        // add a convinence method to add reviews
+        public void addReviews(Review review) {
+            if(reviews == null) {
+                reviews = new ArrayList<>();
+            }
+
+            reviews.add(review);
+        }
+
+        // add a convinence method to add students
+        public void addStudents(Student student) {
+            if(students == null) {
+                students = new ArrayList<>();
+            }
+
+            students.add(student);
+        }
+    }
+    ```
+3. Update Student Class
+    ```java
+    // Model: Student.java
+    import javax.persistence.Entity;
+    import javax.persistence.Table;
+
+    @Entity
+    @Table(name="student")
+    public class Student {
+
+        @Id
+        @GeneratedValue(strategy=GenerationType.IDENTITY)
+        @Column(name="id")
+        private int id;
+
+        @Column(name="name")
+        private String name;
+
+        @Column(name="email")
+        private String email;
+
+        @ManyToMany(fetch=FetchType.LAZY, cascade={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+        @JoinTable(
+            name="course_student",
+            joinColumns=@JoinColumn(name="student_id"),
+            inverseJoinColumns=@JoinColumn(name="course_id")
+        )
+        private List<Course> courses;
+
+        public Student() {}
+
+        public Student(String name, String email) {
+            this.name = name;
+            this.email = email;
+        }
+
+        @Override
+        public String toString() {
+            return "Student [id = " + id + " name = " + name + " email = " + email + "];
+        }
+
+        // generate getters and setters too
+        
+    }
+    ```
+4. Create main app
+    ```java
+    // CreateCourseStudent.java
+    public class CreateCourseStudent {
+        public static void main(String[] args) {
+            // create session factory
+            SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).addAnnotatedClass(Course.class).addAnnotatedClass(Review.class).addAnnotatedClass(Student.class).buidSessionFactory();
+            
+            //create session
+            Session session = factory.getCurrentSession();
+
+            try {
+                session.beginTransaction();
+
+                // create a course
+                Course c1 = new Course("Pac Man");
+                session.save(c1);
+                Course c2 = new Course("Jo bhi chahe tu");
+                session.save(c2);
+                
+                // create a student
+                Student s1 = new Student("ABC DEF", "abc.def@example.com");
+                Student s2 = new Student("DEF ABC", "def.abc@example.com");
+
+                c1.addStudent(s1);
+                c2.addStudent(s2);
+                c1.addStudent(s1);
+
+                session.save(s1);
+                session.save(s2);
+
+                session.getTransaction().commit();
+            }finally {
+                session.close();
+                factory.close();
+            }
+        }
+    }
+    }
+    ```
