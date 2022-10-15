@@ -28,9 +28,6 @@
 ### Architecture / Module List
 ![Architecture or Module List](https://user-images.githubusercontent.com/60386381/169217351-2bf7e492-df19-4195-badf-8c64f73fed21.png)
 
-## Aspect Oriented Programming (AOP)
-- Need of implementing cross-cutting concerns
-
 ## Model View Controller (MVC)
 ![MVC](https://user-images.githubusercontent.com/60386381/169265090-eff4bb08-0bbc-4f16-866a-d8568528422a.png)
 
@@ -562,18 +559,10 @@ public class Stduent {
     
     1. Identify the beans, i.e., similar classes
     2. Identify the dependency, i.e., how beans are related
-    3. Use @Component for beans and @Autowire for dependencies
+    3. Use @Component for beans and @Autowired for dependencies
     
-## Debug Command
+## Debug Command (Maven)
 - In resources folder go to application properties and type:
 ```
 logging.level.org.springframework=debug
 ```
-
-## Actuator --> Monitoring Tool (Collect Dependency XML Codes from Maven Repo)
-1. Starter Actuator --> Collects all API Method (http://localhost:8080/actuator)
-2. Hal Browser --> To visualize data (http://localhost:8080/browser/index.html#)
-
-## 2 Ways to connect with the database
-- EntityManager --> Needs a manual set-up
-- JpaRepository --> Internally communicates to the EntityManager
