@@ -218,6 +218,7 @@ Refer Spring.mdRefer Spring.md
             System.out.println("Logging Before");
         }
     }
+    ```
 
 ### Combining Pointcuts
 - Used when we to execute an advice only if certain conditions are met
@@ -267,3 +268,33 @@ Refer Spring.mdRefer Spring.md
 - Easily reusable
 - Update pointcut in one location
 - Can share and combine pointcut expressions
+
+## Ordering Aspects
+### Development Process
+1. Refactor advices in different aspects
+2. Add @Order annotation to the aspects
+
+```java
+// AspectLogging.java
+@Aspect
+@Component
+@Order(2)
+public class AspectLogging {
+    @Before("execution(public * add*(..))")
+    public void beforeAddAccountAdvice() {
+        System.out.println("Logging Before");
+    }
+}
+```
+```java
+// LogToCloudAspect.java
+@Aspect
+@Component
+@Order(1)
+public class LogToCloudAspect {
+    @Before("execution(public * add*(..))")
+    public void logToCloud() {
+        System.out.println("Logging Before");
+    }
+}
+```
