@@ -125,9 +125,7 @@ Refer Spring.mdRefer Spring.md
     @Configuration
     @EnableAspectJAutoProxy
     @ComponentScan("code.example.aopdemo")
-    public class DemoConfig {
-
-    }
+    public class DemoConfig {}
     ```
 3. Create main app
     ```java
@@ -160,6 +158,93 @@ Refer Spring.mdRefer Spring.md
             System.out.println("Logging Before");
         }
     }
+    ```
+
+## AfterReturning Advice
+- Use cases
+    - Common ones
+        - Logging
+        - Security
+        - Transactions
+    - Audit Logging
+    - Post Processing data
+
+### Development Process
+1. Create an account class
+    ```java
+    // Account.java
+    public class Account {
+        private String name;
+        private String level;
+
+        // constructors
+        // getters and seeters
+        // override toString
+    }
+    ```
+2. Add method findAccount in AccountDAO
+    ```java
+    //AccountDAO.java
+    @Component
+    public class AccountDAO {
+
+        private String name;
+        private String serviceCode;
+
+        public List<Account> findAccounts() {
+            List<Account> accounts = new ArrayList<>();
+
+            Account a1 = new Account("ABC", "Alpha");
+            Account a2 = new Account("DEF", "Beta");
+            Account a3 = new Account("GHI", "Alpha");
+
+            accounts.add(a1);
+            accounts.add(a2);
+            accounts.add(a3);
+
+            return accounts;
+        }
+
+        public void addAccount() {
+            System.out.println("Adding account to DB");
+        }
+    }
+    ```
+3. Update main app to call findAccounts()
+    ```java
+    // class Main
+    public class Main {
+        public static void main(String[] args) {
+
+            // read spring config java class
+            AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
+
+            // get the bean from spring container
+            AccountDAO accountDAO = context.getBean("accountDAO", AccountDAO.class);
+
+            // call the logic
+            accountDAO.addAccount();
+
+            List<Account> accounts = accountDAO.findAccounts();
+            System.out.println(accounts);
+
+            // close context
+            context.close();
+        }
+    }
+    ```
+4. Add AfterReturning Advice
+    ```java
+    // AspectLogging.java
+    @Aspect
+    @Component
+    public class AspectLogging {
+        @AfterReturning(pointcut="execution(public void addAccount())", returning="results")
+        public void afterFindAccounts(List<Account> results) {
+            System.out.println("Logging After returning");
+        }
+    }
+    ```
 
 ## Pointcut Declarations
 ### Development Process
@@ -295,6 +380,42 @@ public class LogToCloudAspect {
     @Before("execution(public * add*(..))")
     public void logToCloud() {
         System.out.println("Logging Before");
+    }
+}
+```
+
+## Join Points
+- Used to access method parameters
+
+### Development Process
+1. Access and display method signature
+2. Access and display method arguments
+
+```java
+// AspectLogging.java
+@Aspect
+@Component
+public class AspectLogging {
+    @Before("execution(public void addAccount())")
+    public void beforeAddAccountAdvice(JoinPoint joinPoint) {
+        System.out.println("Logging Before");
+
+        // accessing and displaying method sigs
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+
+        System.out.println(methodSignature);
+
+        // accessing and displaying method arguments
+        Object[] args = joinPoint.getArgs();
+
+        for(Object arg: args) {
+            System.out.println(arg);
+
+            if(arg instanceOf Account) {
+                Account account = (Account) arg;
+                System.out.println(account.getName());
+            }
+        }
     }
 }
 ```
