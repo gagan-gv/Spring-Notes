@@ -351,6 +351,70 @@ Refer Spring.mdRefer Spring.md
     }
     ```
 
+## Around Advice
+- Use cases
+    - Common ones
+        - Logging
+        - Security
+        - Audit
+    - Pre & Post Processing Data
+    - Profiling Code
+        - Code total run time
+    - Managing Exceptions
+
+### Development Process
+1. Create TrafficFortuneService
+    ```java
+    // TrafficFortuneService.java
+    @Component
+    public class TrafficFortuneService {
+        public String getFortune() {
+            TimeUnit.SECONDS.sleep(5);
+
+            return "No Traffic!";
+        }
+    }
+    ```
+2. Create Main App
+    ```java
+    // class Main
+    public class Main {
+        public static void main(String[] args) {
+
+            // read spring config java class
+            AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
+
+            // get the bean from spring container
+            TrafficFortuneService trafficFortuneService = context.getBean("trafficFortuneService", TrafficFortuneService.class);
+
+            trafficFortuneService.getFortune();
+
+            // close context
+            context.close();
+        }
+    }
+    ```
+3. Add Around Advice
+    ```java
+    // AspectLogging.java
+    @Aspect
+    @Component
+    public class AspectLogging {
+        @Around("execution(* getFortune())")
+        public Object aroundFortune(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+            System.out.println("Logging Around");
+
+            long begin = System.currentTimeMillis();
+            Object res = proceedingJoinPoint.proceed();
+            long end = System.currentTimeMillis();
+
+            System.out.println("Total time to run the code = " + (end - begin) / 1000);
+
+            return null;
+        }
+    }
+    ```
+
 ## Pointcut Declarations
 ### Development Process
 1. Create target object: Overhere AccountDAO
