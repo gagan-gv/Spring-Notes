@@ -331,6 +331,26 @@ Refer Spring.mdRefer Spring.md
     }
     ```
 
+## After Advice
+- Use Cases
+    - Logging and Auditing
+    - Run code regardless of outcome
+    - Encapsulate `this` functionality in AOP
+
+### Development Process
+1. Create After advice
+    ```java
+    // AspectLogging.java
+    @Aspect
+    @Component
+    public class AspectLogging {
+        @After("execution(public void addAccount())")
+        public void afterFindAccounts() {
+            System.out.println("Logging After");
+        }
+    }
+    ```
+
 ## Pointcut Declarations
 ### Development Process
 1. Create target object: Overhere AccountDAO
