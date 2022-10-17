@@ -246,6 +246,91 @@ Refer Spring.mdRefer Spring.md
     }
     ```
 
+## AfterThrowing Advice
+- Use cases
+    - Log the exception
+    - Perform auditing
+    - Notify DevOps Team
+    - Encapsulate `this` functionality in AOP
+
+### Development Process
+1. In main app, add a try catch block
+    ```java
+    // class Main
+    public class Main {
+        public static void main(String[] args) {
+
+            // read spring config java class
+            AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
+
+            // get the bean from spring container
+            AccountDAO accountDAO = context.getBean("accountDAO", AccountDAO.class);
+
+            // call the logic
+            accountDAO.addAccount();
+
+            List<Account> accounts = null;
+
+            try {
+                boolean flag = true;
+                accounts = accountDAO.findAccounts(flag);
+            } catch(Exception e) {
+                System.out.println("Caught Exception");
+            }
+
+            System.out.println(accounts);
+
+            // close context
+            context.close();
+        }
+    }
+    ```
+2. Modify AccountDAO to simulate throwing an exception
+    ```java
+    //AccountDAO.java
+    @Component
+    public class AccountDAO {
+
+        private String name;
+        private String serviceCode;
+
+        public List<Account> findAccounts(boolean flag) {
+
+            if(flag) {
+                throw new RunTimeException("You broke the code");
+            }
+
+            List<Account> accounts = new ArrayList<>();
+
+            Account a1 = new Account("ABC", "Alpha");
+            Account a2 = new Account("DEF", "Beta");
+            Account a3 = new Account("GHI", "Alpha");
+
+            accounts.add(a1);
+            accounts.add(a2);
+            accounts.add(a3);
+
+            return accounts;
+        }
+
+        public void addAccount() {
+            System.out.println("Adding account to DB");
+        }
+    }
+    ```
+3. Add @AfterThrowing advice
+    ```java
+    // AspectLogging.java
+    @Aspect
+    @Component
+    public class AspectLogging {
+        @AfterThrowing(pointcut="execution(public void addAccount())", throwing="exc")
+        public void afterFindAccounts(Throwable exc) {
+            System.out.println("Logging After throwing " + exc);
+        }
+    }
+    ```
+
 ## Pointcut Declarations
 ### Development Process
 1. Create target object: Overhere AccountDAO
