@@ -21,6 +21,18 @@
 
         <hr />
 
+        <p>
+            <a href="${pageContext.request.contextPath}/leaders">Leadership Meeting</a>(Only for Managers)
+        </p>
+
+        <hr />
+
+        <p>
+            <a href="${pageContext.request.contextPath}/systems">Admin Meeting</a>(Only for Admins)
+        </p>
+
+        <hr />
+
         <form:form action="${pageContext.request.contextPath}/logout" method="POST">
             <button type="submit">Logout</button>
         </form:form>
