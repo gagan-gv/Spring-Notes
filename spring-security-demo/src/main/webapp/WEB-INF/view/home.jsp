@@ -21,15 +21,19 @@
 
         <hr />
 
-        <p>
-            <a href="${pageContext.request.contextPath}/leaders">Leadership Meeting</a>(Only for Managers)
-        </p>
+        <security:authorize access="hasRole('MANAGER')">
+            <p>
+                <a href="${pageContext.request.contextPath}/leaders">Leadership Meeting</a>(Only for Managers)
+            </p>
+        </security:authorize>
 
         <hr />
 
-        <p>
-            <a href="${pageContext.request.contextPath}/systems">Admin Meeting</a>(Only for Admins)
-        </p>
+        <security:authorize access="hasRole('ADMIN')">
+            <p>
+                <a href="${pageContext.request.contextPath}/systems">Admin Meeting</a>(Only for Admins)
+            </p>
+        </security:authorize>
 
         <hr />
 
