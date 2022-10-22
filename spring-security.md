@@ -42,5 +42,25 @@
 - For any normal browser web requests
 - For non browser requests disable CSRF after careful review
 
+## Spring Security With JDBC
+- Follow predefined table schema of spring security or work with customize schema
+- Spring Security default schema has 2 tables:
+	- users with attributes
+		- username
+		- password
+		- enabled
+	- authorities with attributes
+		- username
+		- authority
+
+## Spring Security Password Encoding
+| ID | Description |
+|--------------- | --------------- |
+| noop | Plain text password |
+| bcrypt | BCrypt Password Hashing |
+
+...and many more.
+
+
 ## Reference
 [Spring Security Documentation](https://docs.spring.io/spring-security/site/docs/4.2.3.RELEASE/reference/htmlsingle/)
