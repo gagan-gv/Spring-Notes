@@ -28,3 +28,9 @@
 ## Java JSON Data Binding
 - Process of converting JSON to Java POJO and vice-versa
 - Spring uses [Jackson Project](github.com/FasterXML/jackson-databind) BTS
+
+## Spring REST Support
+- Spring Web MVC provides support for Spring REST
+- New annotation `@RestController`
+    - Extension of `@Controller`
+    - Hnadles REST requests and responses
