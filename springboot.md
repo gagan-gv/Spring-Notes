@@ -44,5 +44,56 @@
 - DevOps functionality
 - There are 10+ actuator end points
 
+## Spring Boot Core Properties
+> **NOTE:** Used in `application.properties` file
+- Logging
+    - Logging Levels
+        - DEBUG
+        - TRACE
+        - INFO
+        - WARN
+        - ERROR
+        - OFF
+        - FATAL
+    ```properties
+    logging.level.org.springframework=DEBUG
+    #storing all the logs
+    logging.file=application.log
+    ```
+- Server
+    ```properties
+    # changing server port number
+    server.port=7070
+    # changing default context path
+    server.servlet.context-path=/my-app
+    # setting session time out // default is 30mins
+    server.servlet.session.timeout=15m
+    ```
+- Actuator
+    ```properties
+    # include end points by name or wildcard
+    management.endpoints.web.exposure.include=*
+    # exclude end points by name or wildcard
+    management.endpoints.web.exposure.exclude=beans,info
+    # basepath for actuator endpoints
+    management.endpoints.web.base-path=/actuator
+    ```
+- Security
+    ```properties
+    # setting default username
+    spring.security.user.name=admin
+    # setting default password
+    spring.security.user.password=secret
+    ```
+- JDBC
+    ```properties
+    # jdbc url
+    spring.datasource.url=jdbc:mysql://localhost:3306/db
+    # login username
+    spring.datasource.username=alpha
+    # login password
+    spring.datasource.password=beta
+    ```
+
 ## Resource
 [**Spring Boot Reference Manual**](https://spring.io/projects/spring-boot)
