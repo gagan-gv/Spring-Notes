@@ -33,4 +33,4 @@
 - Spring Web MVC provides support for Spring REST
 - New annotation `@RestController`
     - Extension of `@Controller`
-    - Hnadles REST requests and responses
+    - Handles REST requests and responses
