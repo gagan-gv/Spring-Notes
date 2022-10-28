@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import com.example.cruddemospringboot.model.Employee;
 
+// Used for Hibernate & Standard JPA
 @Repository
 public class EmployeeDAOImplementation implements EmployeeDAO {
 
@@ -67,7 +68,7 @@ public class EmployeeDAOImplementation implements EmployeeDAO {
         
     } */
 
-    /* Standard JPA
+    // Standard JPA
     @Override
     public void deleteEmployee(int id) {
         Query query = entityManager.createQuery("delete from Employee where id = :employeeId");
@@ -95,6 +96,6 @@ public class EmployeeDAOImplementation implements EmployeeDAO {
     public void saveEmployee(Employee employee) {
         Employee e = entityManager.merge(employee);
         employee.setId(e.getId());
-    } */
+    }
     
 }
