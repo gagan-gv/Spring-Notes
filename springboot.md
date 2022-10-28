@@ -94,6 +94,15 @@
     # login password
     spring.datasource.password=beta
     ```
+## Java Persistence API (JPA)
+- Standard API for ORM
+- Only a specification
+    - Defines a set of interfaces
+    - Requires an implementation to be usable
+
+### Advantages
+- Maintain portable & flexible code
+- Auto datasource config
 
 ## Resource
 [**Spring Boot Reference Manual**](https://spring.io/projects/spring-boot)
