@@ -9,3 +9,4 @@ Learning Spring, Spring Rest and Spring Boot
 5. [Spring Security](./spring-security.md)
 6. [Spring Rest](./spring-rest.md)
 7. [Spring Boot](./springboot.md)
+8. [Thymeleaf](./springboot-thymeleaf.md)
