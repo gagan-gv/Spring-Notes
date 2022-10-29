@@ -104,5 +104,22 @@
 - Maintain portable & flexible code
 - Auto datasource config
 
+## Spring Data REST
+- The problem with Spring JPA is to create DAOs as well as service for same CRUD functions. This is lengthy process for multiple entities/models.
+- Spring data REST acts as the solution for above problem
+    - Leverages JpaRepository
+    - Minimizes boiler-plate code
+    - No new coding required
+- By default Spring Data REST create endponits based on Entity Type
+    - Simple Pluralized form
+        - Add 's' to the entity
+        - But this doesn't hold true for all words, like goose has its plural as geese
+        - So, to change it `@RepositoryRestResource(path="geese")` to keep it pluralized form
+- Spring Data REST endpoints are HATEOAS(Hypermedia as the Engine of Application State, acts as meta data) compliant
+### Development Process
+1. Create the model/entity
+2. Extend your Repo to JpaRepo
+3. Add POM dependency for spring-boot-starter-data-rest
+
 ## Resource
 [**Spring Boot Reference Manual**](https://spring.io/projects/spring-boot)
