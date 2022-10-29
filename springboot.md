@@ -114,7 +114,7 @@
     - Simple Pluralized form
         - Add 's' to the entity
         - But this doesn't hold true for all words, like goose has its plural as geese
-        - So, to change it `@RepositoryRestResource(path="geese")` to keep it pluralized form
+        - So, to change it add, `@RepositoryRestResource(path="geese")`, to keep it pluralized form
 - Spring Data REST endpoints are HATEOAS(Hypermedia as the Engine of Application State, acts as meta data) compliant
 ### Development Process
 1. Create the model/entity
