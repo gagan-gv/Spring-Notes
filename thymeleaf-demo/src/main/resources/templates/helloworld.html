@@ -9,5 +9,24 @@
     </head>
     <body>
         <p th:text="'Time on the server is: ' + ${theDate}" />
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>
+                        Id
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="emp : ${employees}">
+                    <td th:text="${emp.id}"></td>
+                    <td th:text="${emp.name}"></td>
+                </tr>
+            </tbody>
+        </table>
     </body>
 </html>
