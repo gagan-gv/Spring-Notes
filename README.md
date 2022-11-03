@@ -10,3 +10,4 @@ Learning Spring, Spring Rest and Spring Boot
 6. [Spring Rest](./spring-rest.md)
 7. [Spring Boot](./springboot.md)
 8. [Thymeleaf](./springboot-thymeleaf.md)
+9. [Microservices](./springboot-microservices.md)
