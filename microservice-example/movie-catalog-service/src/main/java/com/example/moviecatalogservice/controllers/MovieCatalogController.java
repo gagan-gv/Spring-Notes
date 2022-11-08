@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import com.example.moviecatalogservice.models.CatalogItem;
 import com.example.moviecatalogservice.models.Movie;
 import com.example.moviecatalogservice.models.Rating;
+import com.example.moviecatalogservice.models.UserRating;
 
 @RestController
 @RequestMapping("/catalogs")
@@ -24,14 +25,11 @@ public class MovieCatalogController {
     @GetMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable String userId) {
         // get all movie IDs
-        List<Rating> ratings = Arrays.asList(
-            new Rating("1234", 5),
-            new Rating("5678", 4)
-        );
+        UserRating ratings = restTemplate.getForObject("http://localhost:8082/ratings/users/" + userId, UserRating.class);
 
         // For each movie ID call movie info service and get details
         // Put them all together
-        return ratings.stream().map(rating -> { 
+        return ratings.getUserRating().stream().map(rating -> { 
             Movie movie = restTemplate.getForObject("http://localhost:8081/movies/" + rating.getMovieId(), Movie.class); 
             return new CatalogItem(movie.getName(), "Test", rating.getRating());
         })
