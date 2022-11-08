@@ -2,7 +2,7 @@
 - Layman definition: Break a monolith service into multiple smaller services
     ![image](https://user-images.githubusercontent.com/60386381/199781905-87f87246-98c3-4c02-8960-d35dadb6edc1.png)
 - Microservices are interdependent & follow a pattern
-- One of the robust ways to build microservices in Java is using ***Spring Cloud***
+- One of the robust ways to build microservices in Java is using ***Spring Cloud***(is Synchronus in nature)
 - Example: Movie Catalog like IMDB uses microservices
 
 ## Services VS Microservices
@@ -25,3 +25,25 @@
 ## Communication between APIs
 - Uses `RestTemplate`
 - Create a RestTemplate --> Get the Object for the particular class for the template --> Stream the result to the URL
+
+## Why not to return a list in API?
+- Deserialization
+- Enhancement/changes can break the code
+    - So, we use an object wrapper while returning
+
+## Why Hardcoded URLs are bad?
+- Changes require code updates
+- Dynamic URLs in the cloud
+- Load balancing
+- Multiple Environments
+
+## Service Discovery
+- Service discovery is a pattern when you build microservices, each microservice talks to each other & how they know who to talk too.
+- Due to the above reasons we use service discovery.
+- Spring cloud integrates with Eureka for service discovery.
+![image](https://user-images.githubusercontent.com/60386381/200472720-4c7ccc24-6c62-471b-a2aa-4524b2728a0f.png)
+
+### Development Process
+1. Start Eureka Server
+2. Have microservices register/publish using Eureka client
+3. Have microservices locate/consume using Eureka client
