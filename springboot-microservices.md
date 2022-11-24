@@ -12,13 +12,20 @@
     - Example: Shopping cart microservice used only by e-commerce applications.
 
 ## Development Process
-**For Movie Catalog Application**
-1. Build Movie Catalog Service
-2. Build Movie Info Service
-3. Build Ratings Service
-4. Make movie catalog call other two services
 
-![image](https://user-images.githubusercontent.com/60386381/199886481-d8654ce4-9765-439e-bc78-4cb06840ae03.png)
+1. Build all services
+2. Start discovery of services
+3. Configure them
+
+### Example: Basic E-Commerce
+- Services:
+    - Product Service: Create and view products, acts as product catalog
+    - Order Service: Can order products
+    - Inventory Service: Can check if product is in stock or not
+    - Notification Service: Can send notifications, after order is placed
+- Sync & Async communications will be used
+
+![image](https://user-images.githubusercontent.com/60386381/203799007-c24a5a48-5127-4412-86ae-4660e3ef4f24.png)
 
 ***[Development Code](./microservice-example/)*** 
 
