@@ -30,8 +30,10 @@
 ***[Development Code](./microservice-example/)*** 
 
 ## Communication between APIs
-- Uses `RestTemplate`
-- Create a RestTemplate --> Get the Object for the particular class for the template --> Stream the result to the URL
+- Uses `RestTemplate` (Deprecated)
+    - Create a RestTemplate --> Get the Object for the particular class for the template --> Stream the result to the URL
+- Uses `WebClient`
+    - Similar to RestTemplate
 
 ## Why not to return a list in API?
 - Deserialization
